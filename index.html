@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Opening your email</title>
+<style>
+  :root{color-scheme:light dark}
+  body{font:17px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;max-width:560px;margin:48px auto;padding:0 16px;background:#f2f4f6;color:#1d2430}
+  @media (prefers-color-scheme:dark){body{background:#13171d;color:#e7eaef}}
+  a.btn{display:inline-block;margin-top:12px;padding:12px 22px;border-radius:6px;background:#a63d66;color:#fff;font-weight:700;text-decoration:none}
+  pre{white-space:pre-wrap;word-break:break-word;background:rgba(127,127,127,.12);padding:10px;border-radius:6px;font-size:14px}
+  .small{font-size:14px;opacity:.8}
+</style>
+</head>
+<body>
+<h1 style="font-size:22px">Opening your email…</h1>
+<p>Your email app should open with a new email, ready to send. Check it and press Send.</p>
+<p class="small">If your browser asks "Open Outlook?", choose Open (tick "Always allow" so it does not ask again).</p>
+<a class="btn" id="go" href="#">Nothing opened? Tap here</a>
+<p class="small" style="margin-top:24px">Your message:</p>
+<pre id="msg"></pre>
+<script>
+// Email bridge for a family trip-planning page (26 Oct 2026).
+// The planning page lives inside claude.ai, which blocks email (mailto) links but lets ordinary web
+// links open in a new tab. That new tab lands here; a normal tab IS allowed to open the email app.
+// - The address, subject and message all ride after "#", which browsers never send to the server,
+//   so no address is stored in this public page. Nothing is sent from here: it only opens the
+//   visitor's own email app, where they see the email before pressing Send.
+// - Subject must start "Japan plan" so the planner's mail reader picks it up.
+(function(){
+  "use strict";
+  var h = new URLSearchParams(location.hash.slice(1));
+  var TO = (h.get("to") || "").trim();
+  if (!/^[^\s@,;?&#]+@[^\s@,;?&#]+\.[^\s@,;?&#]+$/.test(TO)) {
+    document.querySelector("h1").textContent = "This link is missing its email address.";
+    document.getElementById("go").hidden = true;
+    return;
+  }
+  var s = (h.get("s") || "Japan plan").slice(0, 200);
+  var b = (h.get("b") || "").slice(0, 1800);
+  if (!/^japan plan/i.test(s)) s = "Japan plan: " + s;
+  var url = "mailto:" + TO + "?subject=" + encodeURIComponent(s) + "&body=" + encodeURIComponent(b);
+  document.getElementById("go").href = url;
+  document.getElementById("msg").textContent = s + "\n\n" + b;
+  window.location.href = url;
+})();
+</script>
+</body>
+</html>
